@@ -12,6 +12,7 @@ env/
 # Data & artifacts
 data/processed/
 data/user_profiles/
+data/raw/
 *.parquet
 *.feather
 *.pkl
