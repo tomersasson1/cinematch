@@ -1,42 +1,38 @@
-### Movie & TV Recommendation System
+# CineMatch — Movie & TV Recommendation System
 
 [![Python 3.x](https://img.shields.io/badge/python-3.x-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 
-This is a **portfolio-grade movie/TV recommendation system** built in Python.  
-It focuses on **clean code structure**, **explainable models**, and a **simple local UI** so you can both learn and demonstrate practical data science skills.
-
-#### Main features
-- **Multiple recommendation strategies**
-  - Popularity-based baseline.
-  - Item–item collaborative filtering.
-  - Content-based filtering using genres.
-  - A simple hybrid that combines different signals.
-- **Local UI with Streamlit**
-  - Let a user pick favorite genres and movies.
-  - Show tailored recommendations with basic explanations.
-- **Reproducible workflow**
-  - Clear project structure (`src/`, `app/`, `data/`, `notebooks/`).
-  - Config-driven paths and parameters.
+I built this movie and TV recommendation system in Python to combine several recommendation strategies into one hybrid approach. The goal was to create something that handles new users, learns from behavior, and uses content signals—all with a simple Streamlit UI so others can try it out locally.
 
 ---
 
-### 1. Project structure
+## What I Implemented
+
+- **Popularity baseline** — Counts ratings and averages so I can always recommend something reasonable, even for brand-new users.
+- **Item–item collaborative filtering** — Builds a user–item matrix and computes similarity between movies based on how users rate them. If someone likes movie A, I recommend movies with similar rating patterns.
+- **Content-based filtering** — Represents each movie by its genres and matches users to movies whose content features align with their preferences.
+- **Hybrid recommender** — Blends these approaches with a weighted sum so different signals contribute to the final ranking.
+
+The app lets users pick favorite genres and movies, then shows tailored recommendations with basic explanations. I kept the structure modular—core logic in `src/recommender`, UI in `app/`, and analysis in `notebooks/`—so it’s easy to extend or evaluate.
+
+---
+
+## Project Structure
 
 ```text
 .
 ├── app/
-│   └── streamlit_app.py        # Streamlit UI entrypoint
+│   └── streamlit_app.py
 ├── data/
-│   ├── raw/                    # Raw MovieLens data (ratings.csv, movies.csv, …)
-│   └── processed/              # Preprocessed data / matrices
+│   ├── raw/                    # MovieLens ratings.csv, movies.csv
+│   └── processed/              # Precomputed matrices
 ├── notebooks/
-│   ├── 01_eda.ipynb            # Exploratory data analysis
+│   ├── 01_eda.ipynb
 │   └── 02_model_prototyping.ipynb
 ├── src/
 │   └── recommender/
-│       ├── __init__.py
 │       ├── config.py
 │       ├── data_loading.py
 │       ├── preprocessing.py
@@ -44,7 +40,6 @@ It focuses on **clean code structure**, **explainable models**, and a **simple l
 │       ├── evaluation.py
 │       ├── interfaces.py
 │       └── models/
-│           ├── __init__.py
 │           ├── baseline.py
 │           ├── collaborative.py
 │           ├── content.py
@@ -53,117 +48,61 @@ It focuses on **clean code structure**, **explainable models**, and a **simple l
 └── README.md
 ```
 
-This structure separates:
-- **Core recommendation logic** (`src/recommender`) from
-- **User interface** (`app/`) and
-- **Experiments / analysis** (`notebooks/`).
-
 ---
 
-### 2. Dataset
+## Dataset
 
-This project uses the **MovieLens 25M** dataset (CSV). Easiest way:
-
-From the project root:
+I used the **MovieLens 25M** dataset. From the project root:
 
 ```bash
 python scripts/download_movielens.py
 ```
 
-This downloads the zip, extracts it, and copies `ratings.csv` and `movies.csv` into `data/raw/movielens/`. Alternatively, download from [MovieLens](https://grouplens.org/datasets/movielens/) and place the CSV files under `data/raw/movielens/`.
+That downloads the zip and copies `ratings.csv` and `movies.csv` into `data/raw/movielens/`. You can also download manually from [MovieLens](https://grouplens.org/datasets/movielens/) and place the CSVs there.
 
 Expected columns:
-- `ratings.csv`: `userId`, `movieId`, `rating`, `timestamp`
-- `movies.csv`: `movieId`, `title`, `genres`
+- `ratings.csv`: userId, movieId, rating, timestamp
+- `movies.csv`: movieId, title, genres
 
 ---
 
-### 3. Environment setup
-
-1. **Create and activate a virtual environment** (recommended):
+## Running It
 
 ```bash
 python -m venv .venv
-# On Windows (PowerShell)
-.venv\\Scripts\\Activate.ps1
-```
+.venv\Scripts\Activate.ps1   # Windows PowerShell
 
-2. **Install dependencies**:
-
-```bash
 pip install -r requirements.txt
 ```
 
-3. **Faster startup (optional)**  
-   The first time you run the app it builds the recommendation engine from scratch (can take a minute). To make later starts fast, run once:
+For faster startup after the first run:
 
-   ```bash
-   python scripts/build_artifacts.py
-   ```
-   This saves precomputed data to `data/processed/artifacts.pkl`; the app will load from that file next time.
+```bash
+python scripts/build_artifacts.py
+```
 
-4. **Run the Streamlit app** (from project root):
+Then start the app:
 
 ```bash
 python run_app.py
 ```
-Put your TMDB API key in a `.env` file (copy from `.env.example`) so "Most watched in your genres" shows movies.
 
-Using `python -m streamlit` ensures the correct environment’s Streamlit is used.
-
-5. **Up-to-date movies (optional)**  
-   The app can show **popular** and **in theatres** movies from [The Movie Database (TMDB)](https://www.themoviedb.org/). Get a free API key from [TMDB API](https://www.themoviedb.org/settings/api), then set:
-
-   ```bash
-   set TMDB_API_KEY=your_key_here
-   ```
-   (PowerShell). On Linux/macOS: `export TMDB_API_KEY=your_key_here`. The homepage will then display current movies alongside your personalized recommendations.
+Put a TMDB API key in `.env` (copy from `.env.example`) if you want "Most watched in your genres" and current movies. Get a free key from [TMDB API](https://www.themoviedb.org/settings/api).
 
 ---
 
-### 4. How the recommender works (high level)
+## How the Recommender Works (High Level)
 
-At a high level, the system combines three ideas:
+1. **Popularity baseline** — Each movie gets a score from its rating count and/or average. Used to always have reasonable fallback recommendations.
+2. **Collaborative filtering** — User–item matrix (users × movies, entries = ratings). I compute item–item similarity from co-ratings. Liked movie A → recommend movies with similar rating patterns.
+3. **Content-based** — Each movie is a genre vector. User preferences come from genres of liked movies. Recommendations are movies whose content is close to that preference vector.
 
-1. **Popularity baseline**
-   - Count how many ratings each movie has and/or its average rating.
-   - Use this to always be able to recommend *something reasonable*, even for brand new users.
-
-2. **Collaborative filtering (CF)**
-   - Build a large **user–item matrix** (rows are users, columns are movies, entries are ratings or implicit likes).
-   - Compute similarity between movies based on how users rate them (item–item CF).
-   - If you like movie A, recommend movies that have similar rating patterns to A.
-
-3. **Content-based filtering**
-   - Represent each movie by its **genres** (and optionally year or other metadata).
-   - Represent the user’s preferences as a combination of the genres / movies they like.
-   - Recommend movies whose content features are close to the user’s preference vector.
-
-The **hybrid recommender** blends these pieces by taking a weighted sum of different scores.
+The **hybrid** takes a weighted sum of these scores. I tuned the weights during prototyping and kept them config-driven.
 
 ---
 
-### 5. Learning goals
+## Possible Extensions
 
-This project is designed to teach you:
-- How to **structure a real-world data science project**.
-- How to build different types of **recommender systems**:
-  - Popularity-based.
-  - Collaborative filtering.
-  - Content-based.
-  - Hybrid.
-- How to expose your model via a **simple interactive UI** (Streamlit).
-- How to write **clean, well-organized Python code** with configuration, modules, and type hints.
-
----
-
-### 6. Next steps in this repo
-
-- **Deploy:** See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for temporary sharing (e.g. Cloudflare Tunnel) and portfolio hosting (e.g. Streamlit Community Cloud).
-
-As you work through the project, you can:
-- Explore the data and models in `notebooks/`.
-- Improve evaluation metrics in `src/recommender/evaluation.py`.
-- Add more advanced models (e.g. matrix factorization using `implicit` or `lightfm`).
-- Polish the UI in `app/streamlit_app.py` to make it more “product-like” for your portfolio.
-
+- Matrix factorization (e.g. `implicit`, `lightfm`) for better CF
+- Improved evaluation metrics in `src/recommender/evaluation.py`
+- Deploy to Streamlit Community Cloud — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
