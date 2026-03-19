@@ -1,5 +1,9 @@
 ### Movie & TV Recommendation System
 
+[![Python 3.x](https://img.shields.io/badge/python-3.x-blue.svg)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+
 This is a **portfolio-grade movie/TV recommendation system** built in Python.  
 It focuses on **clean code structure**, **explainable models**, and a **simple local UI** so you can both learn and demonstrate practical data science skills.
 
